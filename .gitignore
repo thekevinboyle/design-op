@@ -1,0 +1,11 @@
+# Perplexity API usage tracking — local only
+.perplexity-usage.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
