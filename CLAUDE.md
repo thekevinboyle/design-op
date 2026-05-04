@@ -12,7 +12,7 @@ A workspace for running a hybrid design-ops workflow. The user (Kevin) drives in
 
 | Thing | Location |
 |---|---|
-| Design system (tokens, components, governance pages) | **System file** in Figma — URL: `<SYSTEM_FILE_URL>` (set during setup) |
+| Design system (tokens, components, governance pages) | **System file** in Figma — URL: `https://www.figma.com/design/TcD3YAwDL15W7dr5jRrXYN/Design-System` |
 | Per-initiative work (research, spec, designs, build) | **Initiative file** in Figma — one per piece of work |
 | Initiative index | `./initiatives.md` |
 | Cost-tracking log | `./.perplexity-usage.log` (gitignored) |
