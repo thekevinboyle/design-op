@@ -228,3 +228,49 @@ If no initiative name is given, propose one in kebab-case based on the descripti
 9. **Update `initiatives.md`** status from `designing` to `building`. Also update the System file `Index` page row.
 
 10. **Done.** Terminal: "DESIGN complete for `<name>`. Selected: Option <X>. Run `build: <name>` when ready."
+
+---
+
+## BUILD loop
+
+**Trigger:** `build: <initiative-name>`
+
+**Preconditions:** `Designs` page has a selected option recorded in the most recent `Decisions` entry for this initiative. If not, error.
+
+**Steps:**
+
+1. **Loop-start checklist** (see above).
+
+2. **Read selected design.**
+   - `mcp__figma__get_metadata` on Initiative file. Find the selected Option frame on `Designs` page.
+   - `mcp__figma__get_design_context` on that Option frame. Capture structure.
+
+3. **Read System file inventory.**
+   - `mcp__figma__search_design_system` for each component used in the design.
+   - `mcp__figma__get_variable_defs` for tokens (use cached if already pulled this session).
+
+4. **Compose final design on `Build` page.**
+   - Use `mcp__figma__use_figma` to build the final layout, swapping any ad-hoc shapes from the Option frame for actual System components and token references.
+   - Use auto layout. Use variants where appropriate.
+   - Group into one top-level frame named `<initiative-name> · final`.
+
+5. **Identify and log one-offs.**
+   - For each piece that could not be expressed using existing components/tokens, write one Inbox item to System file `Inbox`. Format:
+     ```
+     [YYYY-MM-DD] Initiative: <name>
+     ONE-OFF: <description of the ad-hoc piece, screenshot link, why no system match>
+     SUGGESTED: <add new component | add variant | add token | leave one-off>
+     ```
+
+6. **Weigh-in (sync).**
+   - Terminal: "BUILD frame on `Build` page. <N> one-offs flagged to Inbox. Open the Build page in Figma and let me know if anything needs revision."
+   - Wait for Kevin's review. Apply revisions iteratively (each revision = one targeted `use_figma` call to the affected sub-frame).
+
+7. **Append to `Decisions` page** (Initiative file).
+   - `[YYYY-MM-DD · <name>] BUILD accepted. Components used: <list>. Tokens used: <list>. One-offs: <count, see Inbox>.`
+
+8. **Update `initiatives.md`** status to `done`.
+
+9. **Update System file `Index` page** to mirror.
+
+10. **Done.** Terminal: "BUILD complete for `<name>`. Final on Build page. Status updated to `done`."
