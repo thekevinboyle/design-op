@@ -274,3 +274,50 @@ If no initiative name is given, propose one in kebab-case based on the descripti
 9. **Update System file `Index` page** to mirror.
 
 10. **Done.** Terminal: "BUILD complete for `<name>`. Final on Build page. Status updated to `done`."
+
+---
+
+## AUDIT loop
+
+**Trigger:** `audit: <scope>` where scope is one of:
+- `system` — full audit of System file
+- `tokens` — audit `Foundations` page only
+- `components` — audit `Components` page only
+- `<component-name>` — audit a single named component
+
+**Steps:**
+
+1. **Loop-start checklist** (see above).
+
+2. **Read the scope.**
+   - `mcp__figma__get_metadata` on System file.
+   - For `system`: read all of `Foundations` and `Components`.
+   - For `tokens`: `mcp__figma__get_variable_defs`.
+   - For `components`: `mcp__figma__search_design_system` with empty/wildcard query, then `get_design_context` on each.
+   - For a specific component: `search_design_system` for the name, then `get_design_context`.
+
+3. **Read full `Decisions Log`** (System file). Use this to detect drift — components or tokens that changed without a corresponding decision.
+
+4. **Optional standards check.**
+   - For specific questions ("is naming convention X still recommended in 2026?"), call `perplexity_ask` (cheap, fast). Skip if no concrete question.
+   - Log per Cost tracking.
+
+5. **Compose audit report.**
+   - Write to System file `Audit Log` page. Top-level frame title: `Audit · <scope> · <YYYY-MM-DD>`.
+   - Inside the top frame, child frames per finding. Each finding format:
+     ```
+     FINDING: <one-sentence summary>
+     EVIDENCE: <what you observed: component name, token value, etc.>
+     SEVERITY: low | medium | high
+     PROPOSED FIX: <specific change>
+     ```
+   - Cap: max 20 findings per audit run. If more, prioritize high-severity and note "N additional low/medium findings deferred to next audit."
+
+6. **Weigh-in (sync).**
+   - Terminal: "Audit complete: <N> findings (H: <h>, M: <m>, L: <l>). Want to walk through them now? Reply with finding numbers to apply, `all` to apply all, or `none` to defer."
+   - For each approved fix:
+     - Apply via `mcp__figma__use_figma`.
+     - Append entry to System file `Decisions Log`: `[YYYY-MM-DD · audit:<scope>] <fix description>. Why: audit finding <N>.`
+   - Deferred findings stay on the `Audit Log` page for next session.
+
+7. **Done.** Terminal: "AUDIT complete for `<scope>`. <N> fixes applied, <M> deferred."
