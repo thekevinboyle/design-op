@@ -124,3 +124,59 @@ Cost estimation: use the model's published per-token rate × estimated tokens (c
 | Generate 2–3 design options from a description | `mcp__figma__generate_figma_design` |
 | Write text frames, pages, components | `mcp__figma__use_figma` |
 | Take screenshot of a node | `mcp__figma__get_screenshot` |
+
+---
+
+## PLAN loop
+
+**Trigger:** `plan: <one-sentence description>` or `plan: <description> (initiative: <kebab-name>)`
+
+If no initiative name is given, propose one in kebab-case based on the description; confirm with Kevin in terminal in one line; continue with the chosen name.
+
+**Steps:**
+
+1. **Loop-start checklist** (see above section).
+
+2. **Create the Initiative file.**
+   - Call `mcp__figma__create_new_file` with name = initiative-name (kebab-case).
+   - Get the new file's URL from the response. Hold it.
+   - Use `mcp__figma__use_figma` to create the six pages in order: `Brief`, `Research`, `Spec`, `Designs`, `Build`, `Decisions`.
+
+3. **Update `initiatives.md`.**
+   - Append a row: `| <name> | <figma-url> | planning | <YYYY-MM-DD> |`.
+   - Replace the placeholder row if it's still the only row.
+
+4. **Update System file `Index` page.**
+   - Append a text frame mirroring the `initiatives.md` row.
+
+5. **Write the `Brief` page.**
+   - One text frame: goal (the user's description, polished), link back to System file URL, today's date.
+
+6. **Research pass.**
+   - Call `perplexity_research` ONCE with a focused prompt: "Pattern survey for <topic>. Return: established patterns, common pitfalls, accessibility considerations, 3–5 reference products with brief notes." Announce in terminal: "Running deep research (~45–60s)..."
+   - Call `perplexity_search` 1–3× for specific competitive references mentioned in the spec or surfaced by the research call.
+   - **Log each call** to `.perplexity-usage.log` per the Cost tracking section.
+
+7. **Write findings to `Research` page.**
+   - One text frame per distinct finding. Suggested layout (top to bottom):
+     - Frame 1: "Patterns" — bulleted list of established patterns with one-line descriptions.
+     - Frame 2: "Pitfalls" — bulleted list.
+     - Frame 3: "Accessibility" — bulleted list.
+     - Frames 4–N: one per reference product, including link and 1-paragraph teardown note.
+     - Frame N+1: "Sources" — list of all URLs cited, deduplicated.
+   - Respect the 20 KB write cap; chunk further if needed.
+
+8. **Draft the `Spec` page.**
+   - Sections as separate text frames: `Problem`, `Goals (numbered)`, `Non-goals`, `Acceptance criteria (checklist)`, `Open questions`.
+   - `Acceptance criteria` should be specific and testable: "Empty state appears within 200ms of confirming an empty result set" not "fast".
+
+9. **Weigh-in (sync).**
+   - In the terminal, list the `Open questions` from the Spec. Wait for Kevin to answer.
+   - Update the `Spec` page (modify the `Open questions` frame to mark resolved ones; update other frames if answers change them).
+   - Append one entry per resolved question to the `Decisions` page on the Initiative file.
+
+10. **Surface anything else as Inbox items** (System file `Inbox` page) per Weigh-in mechanism. Examples: discovered missing system component, naming convention questions, token gaps.
+
+11. **Update `initiatives.md`** status from `planning` to `designing` (signals ready for the DESIGN loop). Also update the corresponding row on the System file `Index` page.
+
+12. **Done.** Final terminal output: "PLAN complete for `<name>`. Spec at <Initiative file URL> · Spec page. Open questions: 0 unresolved. Run `design: <name>` when ready to explore."
