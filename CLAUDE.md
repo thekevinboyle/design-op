@@ -180,3 +180,51 @@ If no initiative name is given, propose one in kebab-case based on the descripti
 11. **Update `initiatives.md`** status from `planning` to `designing` (signals ready for the DESIGN loop). Also update the corresponding row on the System file `Index` page.
 
 12. **Done.** Final terminal output: "PLAN complete for `<name>`. Spec at <Initiative file URL> · Spec page. Open questions: 0 unresolved. Run `design: <name>` when ready to explore."
+
+---
+
+## DESIGN loop
+
+**Trigger:** `design: <initiative-name>`
+
+**Preconditions:** Initiative file exists with `Spec` page populated. If not, error and tell Kevin to run PLAN first.
+
+**Steps:**
+
+1. **Loop-start checklist** (see above).
+
+2. **Read the Spec.**
+   - `mcp__figma__get_metadata` on the Initiative file to get page node IDs.
+   - `mcp__figma__get_design_context` on the `Spec` page node. Hold the spec contents.
+
+3. **Read the System file constraints.**
+   - `mcp__figma__get_variable_defs` on System file (cached for the session).
+   - `mcp__figma__search_design_system` for components likely relevant to the spec topic (e.g., for a button-related spec, search "button").
+   - You will only generate designs that use existing tokens and components. Note any apparent gaps for the BUILD loop or as Inbox items.
+
+4. **Optional reference search.**
+   - If the Spec mentions or implies needing visual inspiration, call `perplexity_search` 1–2× for visual references. Log to `.perplexity-usage.log`.
+   - Skip if Spec is sufficient on its own.
+
+5. **Generate 2–3 directional options.**
+   - Call `mcp__figma__generate_figma_design` 2–3 times with distinct directional prompts. Each prompt MUST cite the spec's acceptance criteria and reference specific System file tokens by name.
+   - Place each option as a separate frame on the `Designs` page, labeled `Option A`, `Option B`, `Option C`.
+
+6. **Write a short evaluation frame.**
+   - One text frame on the `Designs` page above the options: 2–3 lines per option summarizing tradeoffs. Format:
+     ```
+     Option A: <tradeoff line>
+     Option B: <tradeoff line>
+     Option C: <tradeoff line>
+     ```
+
+7. **Weigh-in (sync).**
+   - In terminal: "Three options on Designs page. A: <one-line>. B: <one-line>. C: <one-line>. Pick one to take into BUILD, request iteration on a specific option, or kill an option."
+   - Apply Kevin's choice. If iteration requested, regenerate the targeted option only and re-prompt.
+
+8. **Append to `Decisions` page.**
+   - `[YYYY-MM-DD · <name>] Selected Option <X> for build. Why: <Kevin's reason or your inferred reason>.`
+
+9. **Update `initiatives.md`** status from `designing` to `building`. Also update the System file `Index` page row.
+
+10. **Done.** Terminal: "DESIGN complete for `<name>`. Selected: Option <X>. Run `build: <name>` when ready."
